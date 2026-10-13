@@ -84,7 +84,7 @@ function drawCellLines(context:CanvasRenderingContext2D,lines:string[],x:number,
 
 async function loadLogo(){
  return new Promise<HTMLImageElement>((resolve,reject)=>{
-  const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('No se pudo cargar el logotipo institucional.'));image.src='/logo-intur-nicaragua.png'
+  const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('No se pudo cargar el logotipo institucional.'));image.src=new URL('logo-intur-nicaragua.png',document.baseURI).toString()
  })
 }
 

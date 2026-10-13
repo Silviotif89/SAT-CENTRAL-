@@ -2,7 +2,7 @@ import PizZip from 'pizzip'
 import { delegationName } from '../data/delegations'
 import type { Activity } from '../types'
 
-const TEMPLATE_URL = '/templates/Informe_gestion_mensual_INTUR_base.xlsx'
+const TEMPLATE_URL = `${import.meta.env.BASE_URL}templates/Informe_gestion_mensual_INTUR_base.xlsx`
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 const monthColumns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
 const annualTarget = 13_550

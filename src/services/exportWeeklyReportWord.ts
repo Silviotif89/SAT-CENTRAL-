@@ -5,7 +5,7 @@ import type {Activity} from '../types'
 
 const WORD_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 const XML_NS='http://www.w3.org/XML/1998/namespace'
-const TEMPLATE_URL='/templates/Informe_semanal_INTUR_base.docx'
+const TEMPLATE_URL=`${import.meta.env.BASE_URL}templates/Informe_semanal_INTUR_base.docx`
 const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 const days=['domingo','lunes','martes','miércoles','jueves','viernes','sábado']
 

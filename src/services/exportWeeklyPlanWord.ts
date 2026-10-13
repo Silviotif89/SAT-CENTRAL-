@@ -118,7 +118,7 @@ export async function createWeeklyPlanWord(items:Activity[],range:WeekRange){
  const expected=weekRange(range.start)
  if(!/^\d{4}-\d{2}-\d{2}$/.test(range.start)||!Number.isFinite(parseDate(range.start).getTime())||expected.start!==range.start||expected.end!==range.end)throw new Error('El plan semanal debe abarcar de lunes a viernes de la misma semana.')
  const selected=items.filter(a=>a.status!=='CANCELADA'&&inDateRange(a,range.start,range.end)&&parseDate(a.date).getDay()>=1&&parseDate(a.date).getDay()<=5)
- const response=await fetch(`${'/'}templates/Plan_semanal_INTUR_base.docx`)
+ const response=await fetch(`${import.meta.env.BASE_URL}templates/Plan_semanal_INTUR_base.docx`)
  if(!response.ok)throw new Error('No se pudo cargar la plantilla institucional del plan semanal.')
  const zip=new PizZip(await response.arrayBuffer()),doc=zip.file('word/document.xml')
  if(!doc)throw new Error('La plantilla no contiene el documento principal.')

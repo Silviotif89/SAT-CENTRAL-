@@ -1,4 +1,5 @@
 import {inDateRange,weekRange} from '../lib/activity'
+import {delegationName} from '../data/delegations'
 import type {Activity} from '../types'
 import {weeklyPlanDates} from './exportWeeklyPlanWord'
 
@@ -106,7 +107,7 @@ export async function createWeeklyPlanImage(items:Activity[],range:WeekRange){
    activity:wrapText(measure,activity.topic,320,3,'750 22px Arial'),
    time:wrapText(measure,activity.time,145,3,'650 21px Arial'),
    place:wrapText(measure,activity.location||activity.municipality,275,3,'600 20px Arial'),
-   participants:wrapText(measure,activity.institution,345,3,'600 20px Arial'),
+   department:wrapText(measure,delegationName(activity.delegationId),345,3,'700 21px Arial'),
    responsible:wrapText(measure,responsible(activity),190,3,'700 21px Arial'),
    date:dateLines(activity),
   }
@@ -139,7 +140,7 @@ export async function createWeeklyPlanImage(items:Activity[],range:WeekRange){
  const tableHeight=tableHeaderHeight+rows.reduce((sum,row)=>sum+row.height,0)
  roundRect(context,55,tableTop,1795,tableHeight,20);context.fillStyle='#fff';context.fill();context.strokeStyle='#d5dfea';context.lineWidth=2;context.stroke()
  context.save();roundRect(context,55,tableTop,1795,tableHeight,20);context.clip();context.fillStyle='#173a75';context.fillRect(55,tableTop,1795,tableHeaderHeight)
- const headers=[['FECHA',70],['ACTIVIDAD',240],['HORA',605],['LUGAR',785],['PARTICIPAN',1085],['PROYECCIÓN',1530],['RESPONSABLE',1638]] as const
+ const headers=[['FECHA',70],['ACTIVIDAD',240],['HORA',605],['LUGAR',785],['DEPARTAMENTO',1085],['PROYECCIÓN',1530],['RESPONSABLE',1638]] as const
  headers.forEach(([label,x])=>drawLines(context,[label],x,tableTop+tableHeaderHeight/2,{font:'800 17px Arial',color:'#fff',align:label==='PROYECCIÓN'?'center':'left'}))
  let y=tableTop+tableHeaderHeight
  rows.forEach(({activity,content,height:rowHeight},index)=>{
@@ -152,7 +153,7 @@ export async function createWeeklyPlanImage(items:Activity[],range:WeekRange){
   drawCellLines(context,content.activity,240,center,{left:230,top:y,width:355,height:rowHeight},{font:'750 22px Arial',color:'#142b5e',lineHeight:28})
   drawCellLines(context,content.time,605,center,{left:595,top:y,width:175,height:rowHeight},{font:'650 21px Arial',color:'#43536f',lineHeight:28})
   drawCellLines(context,content.place,785,center,{left:775,top:y,width:295,height:rowHeight},{font:'600 20px Arial',color:'#43536f',lineHeight:27})
-  drawCellLines(context,content.participants,1085,center,{left:1075,top:y,width:365,height:rowHeight},{font:'600 20px Arial',color:'#43536f',lineHeight:27})
+  drawCellLines(context,content.department,1085,center,{left:1075,top:y,width:365,height:rowHeight},{font:'700 21px Arial',color:'#142b5e',lineHeight:28})
   drawCellLines(context,[String(activity.projectedParticipants)],1530,center,{left:1445,top:y,width:170,height:rowHeight},{font:'800 28px Arial',color:'#142b5e',align:'center'})
   drawCellLines(context,content.responsible,1638,center,{left:1625,top:y,width:220,height:rowHeight},{font:'700 21px Arial',color:'#142b5e',lineHeight:28})
   y+=rowHeight

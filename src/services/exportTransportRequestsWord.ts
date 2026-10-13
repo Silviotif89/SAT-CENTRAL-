@@ -133,7 +133,7 @@ export async function createTransportRequestsWord(requests:TransportRequest[],ra
  if(!selected.length)throw new Error('Seleccioná al menos una solicitud para incluir en el Word.')
  if(selected.some(request=>!transportRequestComplete(request)))throw new Error('Completá todos los campos obligatorios de las solicitudes seleccionadas.')
  if(selected.some(request=>request.departureDate<range.start||request.departureDate>range.end||request.returnDate<range.start||request.returnDate>range.end))throw new Error('Las fechas de salida y regreso deben estar entre el lunes y el viernes de la semana seleccionada.')
- const response=await fetch(`${import.meta.env.BASE_URL}templates/Solicitud_transporte_DDT_base.docx`)
+ const response=await fetch(new URL('templates/Solicitud_transporte_DDT_base.docx',globalThis.document.baseURI).toString())
  if(!response.ok)throw new Error('No se pudo cargar la plantilla institucional de solicitudes de transporte.')
  const zip=new PizZip(await response.arrayBuffer()),document=zip.file('word/document.xml')
  if(!document)throw new Error('La plantilla de transporte no contiene el documento principal.')

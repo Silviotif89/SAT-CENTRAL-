@@ -1,4 +1,4 @@
-import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, List, RotateCcw } from 'lucide-react'
+import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, List, RotateCcw, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { ActivityList } from '../components/ActivityList'
 import { StatusBadge } from '../components/StatusBadge'
@@ -7,13 +7,14 @@ import { useActivities } from '../hooks/useActivities'
 import { currentMonthKey } from '../lib/activity'
 import { exportActivitiesExcel } from '../services/exportActivitiesExcel'
 import { exportMonthlyReportExcel, monthlyReportedActivities } from '../services/exportMonthlyReportExcel'
+import { parseMonthlyPlanExchange } from '../services/monthlyPlanExchange'
 import type { Activity } from '../types'
 
 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 const weekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void }) {
-  const { activities } = useActivities()
+  const { activities, importMonthlyPlan } = useActivities()
   const initialMonth = currentMonthKey()
   const [month, setMonth] = useState(initialMonth)
   const [pickerYear, setPickerYear] = useState(Number(initialMonth.slice(0, 4)))
@@ -24,6 +25,7 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
   const [toDate, setToDate] = useState('')
   const [exporting, setExporting] = useState(false)
   const [error, setError] = useState('')
+  const [importMessage, setImportMessage] = useState('')
 
   const [yearText, monthText] = month.split('-')
   const monthIndex = Math.max(0, Math.min(11, Number(monthText) - 1))
@@ -64,10 +66,24 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
     finally { setExporting(false) }
   }
 
+  async function importPlanFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setError(''); setImportMessage('')
+    try {
+      const importedPlan = parseMonthlyPlanExchange(await file.text())
+      const result = importMonthlyPlan(importedPlan.activities)
+      setMonth(importedPlan.period); setPickerYear(Number(importedPlan.period.slice(0, 4)))
+      setImportMessage(result.imported ? `${result.imported} capacitaciones de ${importedPlan.period} fueron incorporadas al SAT Central${result.skipped ? `; ${result.skipped} ya existían y no se duplicaron.` : '.'}` : `No se agregaron capacitaciones: las ${result.skipped} del archivo ya estaban en SAT Central.`)
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'No se pudo importar el archivo.') }
+    finally { event.target.value = '' }
+  }
+
   return <>
     <header className="page-header">
       <div><p>Consolidado mensual</p><h1>Plan mensual</h1></div>
       <div className="monthly-export-actions">
+        <label className="button export import-plan-button"><Upload /> Cargar plan desde SAT Capacitaciones<input type="file" accept="application/json,.json" onChange={importPlanFile} /></label>
         <button className="button export" disabled={!month} onClick={() => exportActivitiesExcel(activities, 'month', `${month}-01`, '', 'monthly-plan')}><Download /> Descargar Excel</button>
         <button className="button export" disabled={exporting || !reported.length} onClick={downloadReport}><Download /> {exporting ? 'Generando informe…' : 'Informe de gestión'}</button>
       </div>
@@ -102,7 +118,8 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
     </section>
 
     {error && <p role="alert">{error}</p>}
-    <div className="format-note"><strong>Plan e informe de gestión mensual</strong><p>El botón Descargar Excel conserva las capacitaciones programadas, reprogramadas y desarrolladas del mes; solo excluye las canceladas. El botón Informe de gestión genera el formato institucional con el avance POA y la territorialización de las actividades reportadas con asistencia válida.</p><p>Informe de gestión: {reported.length ? `${reported.length} actividades reportadas con asistencia completa y validada para este mes.` : 'No hay actividades reportadas con asistencia completa y validada para este mes.'}</p></div>
+    {importMessage && <p className="import-plan-message" role="status">{importMessage}</p>}
+    <div className="format-note"><strong>Plan e informe de gestión mensual</strong><p>Para consolidar el plan territorial, descargá “Exportar para SAT Central” desde la consola administrativa de SAT Plan Capacitaciones y cargá aquí el archivo JSON. Las actividades repetidas no se duplican.</p><p>El botón Descargar Excel conserva las capacitaciones programadas, reprogramadas y desarrolladas del mes; solo excluye las canceladas. El botón Informe de gestión genera el formato institucional con el avance POA y la territorialización de las actividades reportadas con asistencia válida.</p><p>Informe de gestión: {reported.length ? `${reported.length} actividades reportadas con asistencia completa y validada para este mes.` : 'No hay actividades reportadas con asistencia completa y validada para este mes.'}</p></div>
 
     {view === 'list' ? <ActivityList items={items} onSelect={onSelect} /> : <section className="monthly-calendar" aria-label={`Calendario de ${monthName} de ${year}`}>
       <div className="monthly-calendar-weekdays">{weekdays.map(day => <strong key={day}>{day}</strong>)}</div>

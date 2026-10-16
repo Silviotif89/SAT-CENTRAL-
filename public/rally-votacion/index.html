@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f6f4ff">
+  <title>Outstrip · Votación de desafíos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <style>
+    :root{--ink:#1d2c27;--muted:#69746d;--paper:#f5f3ee;--card:#fffefa;--line:#e6e5dc;--green:#176b4b;--green2:#d9eee3;--orange:#e8a33c;--soft:#edf1e8;--shadow:0 14px 36px rgba(30,49,41,.07);font-family:"DM Sans",sans-serif;color:var(--ink);background:var(--paper)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 6% 0%,#e2efe3 0,transparent 30rem),var(--paper);min-height:100vh}button,input{font:inherit}button{cursor:pointer}.shell{max-width:1180px;margin:0 auto;padding:28px 24px 60px}.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:52px}.brand{display:flex;gap:12px;align-items:center;font-weight:700;letter-spacing:-.02em}.brand-mark{display:grid;place-items:center;width:42px;height:42px;background:var(--green);color:white;border-radius:14px;font-family:Manrope,sans-serif;font-size:20px}.status{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}.status-dot{width:9px;height:9px;border-radius:50%;background:#d48a2e}.status.connected .status-dot{background:#288f62}.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(240px,.8fr);gap:28px;align-items:end;margin-bottom:28px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-weight:700;font-size:11px;color:var(--green);margin:0 0 12px}.hero h1{font:700 clamp(34px,5vw,58px)/1.02 Manrope,sans-serif;letter-spacing:-.055em;margin:0;max-width:720px}.hero h1 span{color:var(--green)}.hero-copy{color:var(--muted);font-size:15px;line-height:1.65;margin:16px 0 0;max-width:660px}.team-card{background:var(--green);color:#f7fff9;border-radius:24px;padding:23px 24px;box-shadow:var(--shadow)}.team-card small{display:block;color:#b8d8c4;text-transform:uppercase;letter-spacing:.11em;font-size:10px;font-weight:700;margin-bottom:9px}.team-name{font:700 25px Manrope,sans-serif}.team-meta{margin-top:6px;color:#d2e9d9;font-size:13px}.banner{display:flex;gap:12px;align-items:flex-start;border:1px solid #eadab5;background:#fff8e8;color:#63542e;padding:14px 16px;border-radius:16px;font-size:13px;line-height:1.5;margin:26px 0 20px}.banner strong{color:#423a24}.banner.connected{background:#edf7ef;border-color:#c9e4d0;color:#365644}.banner.error{background:#fff0ec;border-color:#f1c8ba;color:#784632}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.72fr);gap:22px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}.panel h2{font:700 20px Manrope,sans-serif;letter-spacing:-.03em;margin:0}.subtle{color:var(--muted);font-size:13px;line-height:1.5;margin:6px 0 0}.select-wrap{display:grid;gap:7px;margin:20px 0 18px}.select-wrap label{font-size:12px;color:var(--muted);font-weight:600}.select-wrap select{width:100%;height:46px;border:1px solid var(--line);background:#fffefa;color:var(--ink);border-radius:12px;padding:0 12px}.progressline{display:flex;align-items:center;gap:12px;margin:0 0 17px}.progress-track{height:7px;background:#e9ede6;border-radius:9px;flex:1;overflow:hidden}.progress-track span{display:block;height:100%;width:0;background:var(--green);border-radius:9px;transition:width .2s}.progress-text{color:var(--muted);font-size:12px;white-space:nowrap}.challenge-list{display:grid;gap:10px}.challenge{border:1px solid var(--line);border-radius:16px;background:#fffefa;padding:16px;transition:border-color .15s,box-shadow .15s}.challenge:focus-within{border-color:#8ab59c;box-shadow:0 0 0 3px #176b4b18}.challenge-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.challenge-id{font-size:11px;color:var(--green);letter-spacing:.1em;font-weight:700;white-space:nowrap;padding-top:3px}.challenge h3{font:700 15px/1.35 Manrope,sans-serif;margin:0;flex:1}.challenge p{font-size:12px;line-height:1.5;color:var(--muted);margin:8px 0 14px}.rating-row{display:grid;grid-template-columns:auto minmax(130px,1fr) auto;gap:10px;align-items:center}.rating-label{font-size:11px;color:var(--muted);font-weight:600}.scale{display:grid;grid-template-columns:repeat(10,minmax(24px,1fr));gap:4px}.score-button{height:29px;border:1px solid var(--line);background:#fff;border-radius:8px;color:#68736d;font-size:11px;padding:0;transition:all .12s}.score-button:hover{border-color:#89b39a;color:var(--green)}.score-button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:white;font-weight:700}.current-score{font:700 13px Manrope,sans-serif;color:var(--green);min-width:22px;text-align:right}.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}.primary{border:0;border-radius:12px;padding:12px 17px;background:var(--green);color:white;font-weight:700;box-shadow:0 6px 14px #176b4b22}.primary:hover{background:#0f593e}.primary:disabled{opacity:.55;cursor:wait}.hint{font-size:12px;color:var(--muted)}.aside{display:grid;gap:16px;position:sticky;top:18px}.summary{background:var(--ink);color:#f5faf6;border:0;padding:23px}.summary .eyebrow{color:#aacfb8}.summary h2{font-size:20px}.summary .subtle{color:#c0cbc3}.eliminate{margin-top:17px;background:#30423b;border-radius:15px;padding:15px}.eliminate small{display:block;color:#b5c9bd;font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:8px}.eliminate strong{display:block;font:700 16px/1.3 Manrope,sans-serif}.eliminate p{font-size:12px;color:#c0cbc3;line-height:1.45;margin:7px 0 0}.summary-stat{display:flex;justify-content:space-between;align-items:baseline;margin-top:15px}.summary-stat strong{font:700 26px Manrope,sans-serif}.summary-stat span{font-size:12px;color:#c0cbc3}.ranking{display:grid;gap:13px}.rank-item{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:7px 9px;align-items:center}.rank-num{font-size:11px;color:var(--muted);font-weight:700}.rank-name{font-size:12px;font-weight:600;line-height:1.35}.rank-score{font:700 13px Manrope,sans-serif}.rank-track{grid-column:2/4;height:6px;background:#eceee9;border-radius:9px;overflow:hidden}.rank-track i{display:block;height:100%;background:var(--green);border-radius:9px}.empty-rank{color:var(--muted);font-size:13px;line-height:1.5}.footnote{font-size:11px;line-height:1.5;color:var(--muted);margin:4px 0 0}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:white;padding:12px 17px;border-radius:12px;font-size:13px;box-shadow:var(--shadow);transition:.2s;z-index:5}.toast.show{opacity:1;transform:translate(-50%,0)}
+    /* Identidad visual juvenil: violeta, turquesa, coral y amarillo con contraste accesible. */
+    :root{--ink:#202447;--muted:#626783;--paper:#f6f4ff;--card:#fff;--line:#e7e5f2;--green:#6c3ce8;--green2:#ece5ff;--orange:#ff9f43;--soft:#f0edff;--shadow:0 16px 42px rgba(48,39,105,.1)}
+    body{background:radial-gradient(ellipse at 5% 0%,#dffaff 0,transparent 26rem),radial-gradient(ellipse at 94% 10%,#ffe7f4 0,transparent 25rem),var(--paper)}
+    .topline{margin-bottom:42px}.top-actions{display:flex;align-items:center;gap:18px}.brand-mark{background:linear-gradient(135deg,#6c3ce8,#12b8c5);box-shadow:0 8px 20px #6c3ce833}
+    .hero h1 span{background:linear-gradient(90deg,#6c3ce8,#e143a0,#0aa9b9);background-clip:text;-webkit-background-clip:text;color:transparent}
+    .eyebrow,.challenge-id{color:#713de0}.team-card{background:linear-gradient(135deg,#6339df 0%,#9845d7 48%,#e44e9c 100%);position:relative;overflow:hidden}.team-card:after{content:"✦";position:absolute;right:20px;top:8px;font-size:82px;color:#ffffff26}
+    .team-card small{color:#eee3ff}.team-meta{color:#f9e8f6}.banner{border-color:#ddd1ff;background:#f5f0ff;color:#514274}.banner strong{color:#36275d}.banner.connected{background:#e8fbf8;border-color:#b8ebe3;color:#245e58}
+    .primary{background:linear-gradient(100deg,#6339df,#a83fca);box-shadow:0 7px 18px #733be52e}.primary:hover{background:linear-gradient(100deg,#512bc5,#9132b1)}
+    .challenge:focus-within{border-color:#ad91f0;box-shadow:0 0 0 3px #713de01a}.score-button:hover{border-color:#ad91f0;color:#713de0}.score-button[aria-pressed="true"]{background:linear-gradient(135deg,#6339df,#a83fca);border-color:#713de0}
+    .summary{background:linear-gradient(145deg,#242447,#38336d 70%,#50357e)}.summary .eyebrow{color:#d9c8ff}.eliminate{background:#ffffff15;border:1px solid #ffffff18}.rank-track i{background:linear-gradient(90deg,#6c3ce8,#ef55a7,#20bdc5)}
+    .mentor-toggle{border:1px solid #d9cdfb;border-radius:999px;padding:10px 15px;color:#6036c8;background:#fff;box-shadow:0 6px 16px #5131a412;font-size:13px;font-weight:700;white-space:nowrap;transition:.15s}.mentor-toggle:hover,.mentor-toggle[aria-pressed="true"]{color:#fff;border-color:#713de0;background:linear-gradient(100deg,#6339df,#a83fca)}
+    .mentor-panel{margin:0 0 22px;border-color:#d9cdfb;background:linear-gradient(135deg,#fff 20%,#fbf7ff)}.mentor-head{align-items:center}.mentor-title{display:flex;align-items:center;gap:11px}.mentor-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;color:white;background:linear-gradient(135deg,#6339df,#ec50a3);font-size:20px}.mentor-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.mentor-pill{background:#f0eaff;color:#623ac5;border-radius:99px;padding:8px 12px;font-size:12px;font-weight:700}.mentor-export{border:0;background:#202447;color:white;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700}.mentor-export:hover{background:#39376c}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.mentor-table{border-collapse:collapse;min-width:930px;width:100%;font-size:12px}.mentor-table th,.mentor-table td{padding:11px 10px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}.mentor-table thead th{position:sticky;top:0;background:#f2edff;color:#5d3eb0;font-size:11px}.mentor-table th:first-child,.mentor-table td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1;min-width:220px}.mentor-table thead th:first-child{background:#f2edff;z-index:2}.mentor-table tbody tr:last-child td{border-bottom:0}.mentor-table .avg-row td{font-weight:700;background:#f7f4ff;color:#5032a4}.mentor-table .avg-row td:first-child{background:#f7f4ff}.mentor-empty{padding:22px;color:var(--muted);text-align:center;font-size:13px}.mode-note{font-size:11px;color:#796d97;margin:12px 0 0}
+    @media(max-width:840px){.hero{grid-template-columns:1fr}.team-card{max-width:none}.layout{grid-template-columns:1fr}.aside{position:static;grid-template-columns:1fr 1fr}.topline{margin-bottom:34px}}
+    @media(max-width:600px){.shell{padding:18px 14px 40px}.topline{margin-bottom:30px;align-items:flex-start}.top-actions{gap:10px;flex-direction:column-reverse;align-items:flex-end}.status{font-size:11px}.mentor-toggle{font-size:12px;padding:9px 12px}.hero{gap:18px}.panel{padding:17px}.aside{grid-template-columns:1fr}.rating-row{grid-template-columns:1fr auto;gap:8px}.rating-label{grid-column:1/-1}.scale{grid-column:1;grid-row:2;gap:3px}.score-button{height:29px;font-size:10px}.current-score{grid-column:2;grid-row:2}.challenge{padding:14px}.hero-copy{font-size:14px}.brand{font-size:13px}.mentor-head{align-items:flex-start;flex-direction:column}.mentor-tools{width:100%;justify-content:space-between}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand"><span class="brand-mark">O</span><span>Rally de Innovación · UAM</span></div>
+      <div class="top-actions"><button id="mentorToggle" class="mentor-toggle" type="button" aria-expanded="false" aria-controls="mentorPanel">✦ Modo mentor</button><div id="dbStatus" class="status"><i class="status-dot"></i><span>Modo demostración</span></div></div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Decisión de equipo · Edición 2026</p>
+        <h1>Elijamos el desafío que <span>podemos resolver.</span></h1>
+        <p class="hero-copy">Cada integrante califica los nueve temas del 1 al 10. El tablero reúne las evaluaciones y muestra el promedio para que podamos descartar primero el desafío menos viable.</p>
+      </div>
+      <div class="team-card"><small>Equipo participante</small><div class="team-name">Outstrip</div><div class="team-meta">Innovación · Universidad Americana</div></div>
+    </section>
+
+    <div id="connectionBanner" class="banner"><span>●</span><div><strong>Base de datos pendiente de conectar.</strong> Esta vista de prueba guarda los votos solo en este dispositivo. Al conectar Supabase, el grupo verá un único resultado compartido.</div></div>
+
+    <section id="mentorPanel" class="panel mentor-panel" aria-labelledby="mentorTitle" hidden>
+      <div class="panel-head mentor-head"><div class="mentor-title"><span class="mentor-icon" aria-hidden="true">✦</span><div><h2 id="mentorTitle">Panel de mentoría</h2><p class="subtle">Consulta las evaluaciones individuales y el promedio de cada desafío.</p></div></div><div class="mentor-tools"><span id="mentorVoteCount" class="mentor-pill">0 evaluaciones</span><button id="mentorVote" class="mentor-export" type="button">Evaluar como mentor/a</button><button id="exportVotes" class="mentor-export" type="button">Descargar datos CSV</button></div></div>
+      <div id="mentorTableContainer"><div class="mentor-empty">Todavía no hay evaluaciones para mostrar.</div></div>
+      <p class="mode-note">“Modo mentor” es una vista de consulta, no un inicio de sesión. La protección real requerirá configurar autenticación y permisos en Supabase antes de publicar.</p>
+    </section>
+
+    <div class="layout">
+      <section class="panel" aria-labelledby="voteTitle">
+        <div class="panel-head"><div><h2 id="voteTitle">Tu evaluación</h2><p class="subtle">Selecciona tu nombre y puntúa cada tema según su viabilidad para el equipo.</p></div></div>
+        <div class="select-wrap"><label for="evaluator">¿Quién está evaluando?</label><select id="evaluator"><option value="">Seleccionar integrante…</option><option value="Liliana Dominga Pérez Rivera">Liliana Dominga Pérez Rivera</option><option value="Ariel Rolando Talavera Urroz">Ariel Rolando Talavera Urroz</option><option value="Kevin Gabriel Flores Aburto">Kevin Gabriel Flores Aburto</option><option value="Samantha Paola Pérez Estrada">Samantha Paola Pérez Estrada</option><option value="Willian Alberto Pérez Martínez">Willian Alberto Pérez Martínez</option><option value="Dannia María Pérez Rivera">Dannia María Pérez Rivera</option><option value="Sebastián Ernesto Potoy">Sebastián Ernesto Potoy</option><option value="Mentor/a">Mentor/a</option></select></div>
+        <div class="progressline"><div class="progress-track"><span id="progressFill"></span></div><div id="progressText" class="progress-text">0 de 9 evaluados</div></div>
+        <div id="challengeList" class="challenge-list"></div>
+        <div class="actions"><button id="saveButton" class="primary" type="button">Guardar mi evaluación</button><span id="saveHint" class="hint">Puedes cambiar tus notas y guardarlas nuevamente.</span></div>
+      </section>
+
+      <aside class="aside">
+        <section class="panel summary" aria-labelledby="summaryTitle">
+          <p class="eyebrow">Decisión colectiva</p><h2 id="summaryTitle">Así va el equipo</h2><p class="subtle">Promedio de las últimas evaluaciones de cada integrante.</p>
+          <div class="eliminate"><small>Primero para descartar</small><strong id="lowestName">Aún sin evaluaciones</strong><p id="lowestHint">Cuando haya votos, el promedio más bajo aparecerá aquí.</p></div>
+          <div class="summary-stat"><strong id="voteCount">0</strong><span id="voteLabel">integrantes han votado</span></div>
+        </section>
+        <section class="panel"><div class="panel-head"><div><h2>Ranking de viabilidad</h2><p class="subtle">De mayor a menor promedio · actualización cada 15 s</p></div></div><div id="ranking" class="ranking"><div class="empty-rank">Las puntuaciones aparecerán al guardar la primera evaluación.</div></div></section>
+        <p class="footnote">Las notas expresan la percepción del equipo, no un resultado oficial del Rally. La evaluación se guarda asociada al nombre seleccionado.</p>
+      </aside>
+    </div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    // La llave anon de Supabase está diseñada para uso en navegador; la protección real se aplica con RLS en schema.sql.
+    const SUPABASE_URL = window.RALLY_CONFIG?.supabaseUrl || "";
+    const SUPABASE_ANON_KEY = window.RALLY_CONFIG?.supabaseAnonKey || "";
+
+    const members = [
+      "Liliana Dominga Pérez Rivera",
+      "Ariel Rolando Talavera Urroz",
+      "Kevin Gabriel Flores Aburto",
+      "Samantha Paola Pérez Estrada",
+      "Willian Alberto Pérez Martínez",
+      "Dannia María Pérez Rivera",
+      "Sebastián Ernesto Potoy",
+      "Mentor/a"
+    ];
+    const challenges = [
+      {id:1,title:"Segunda vida de los motores eléctricos domésticos",description:"Recuperar motores funcionales de electrodomésticos y darles un nuevo uso con beneficio local."},
+      {id:2,title:"Sensores al servicio de la comunidad",description:"Usar sensores de celulares en desuso para medir un problema concreto y apoyar una decisión."},
+      {id:3,title:"Protección y fomento de polinizadores",description:"Diseñar mejoras ecológicas en un entorno local para proteger polinizadores nativos."},
+      {id:4,title:"Residuos de poda y biomasa vegetal urbana",description:"Proponer un uso económico y práctico para reintegrar biomasa vegetal a los ciclos locales."},
+      {id:5,title:"Reservorios pluviales e infraestructura verde",description:"Combinar monitoreo de agua e intervenciones verdes para reducir riesgos hídricos."},
+      {id:6,title:"Remoción de barro en viviendas anegadas",description:"Crear herramientas portátiles y de bajo costo para retirar lodo tras inundaciones."},
+      {id:7,title:"Reutilización de aceite doméstico",description:"Organizar el aprovechamiento accesible y seguro del aceite de cocina usado."},
+      {id:8,title:"Desechos de basura verde",description:"El contenido del desafío aborda la segunda vida segura de paneles solares fuera de servicio."},
+      {id:9,title:"Priorización de recursos post-emergencia",description:"Ayudar a coordinar a quién asistir primero y dónde asignar recursos tras un desastre."}
+    ];
+    const LOCAL_KEY = "outstrip-rally-evaluations-v1";
+    const supabase = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+    const evaluator = document.querySelector("#evaluator");
+    const challengeList = document.querySelector("#challengeList");
+    const toast = document.querySelector("#toast");
+    let allVotes = [];
+    let currentScores = {};
+
+    challengeList.innerHTML = challenges.map(c => `<article class="challenge" data-challenge="${c.id}"><div class="challenge-top"><span class="challenge-id">${String(c.id).padStart(2,"0")}</span><h3>${c.title}</h3></div><p>${c.description}</p><div class="rating-row"><span class="rating-label">Viabilidad del tema</span><div class="scale" role="group" aria-label="Puntaje para ${c.title}">${Array.from({length:10},(_,i)=>i+1).map(n=>`<button class="score-button" type="button" data-score="${n}" aria-pressed="false" aria-label="Puntuar ${n} de 10">${n}</button>`).join("")}</div><span class="current-score" aria-live="polite">—</span></div></article>`).join("");
+
+    challengeList.addEventListener("click", e => {
+      const button = e.target.closest(".score-button"); if (!button) return;
+      const card = button.closest(".challenge"), id = card.dataset.challenge, score = Number(button.dataset.score);
+      currentScores[id] = score;
+      card.querySelectorAll(".score-button").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+      card.querySelector(".current-score").textContent = score + "/10";
+      updateProgress();
+    });
+    evaluator.addEventListener("change", () => {
+      const saved = allVotes.find(v => v.evaluator_name === evaluator.value);
+      currentScores = saved ? {...saved.scores} : {};
+      renderFormScores();
+    });
+    document.querySelector("#saveButton").addEventListener("click", saveEvaluation);
+    document.querySelector("#mentorToggle").addEventListener("click", () => {
+      const panel=document.querySelector("#mentorPanel"), button=document.querySelector("#mentorToggle"), open=panel.hidden;
+      panel.hidden=!open; button.setAttribute("aria-expanded",String(open)); button.setAttribute("aria-pressed",String(open));
+      button.textContent=open?"↩ Volver a votar":"✦ Modo mentor";
+      if(open) panel.scrollIntoView({behavior:"smooth",block:"start"});
+    });
+    document.querySelector("#exportVotes").addEventListener("click", exportVotesCsv);
+    document.querySelector("#mentorVote").addEventListener("click", () => {
+      evaluator.value="Mentor/a"; evaluator.dispatchEvent(new Event("change"));
+      document.querySelector("#voteTitle").scrollIntoView({behavior:"smooth",block:"start"});
+    });
+
+    function renderFormScores() {
+      document.querySelectorAll(".challenge").forEach(card => {
+        const score = currentScores[card.dataset.challenge];
+        card.querySelectorAll(".score-button").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.score) === Number(score))));
+        card.querySelector(".current-score").textContent = score ? score + "/10" : "—";
+      });
+      updateProgress();
+    }
+    function updateProgress() {
+      const count = Object.keys(currentScores).filter(id => currentScores[id] >= 1 && currentScores[id] <= 10).length;
+      document.querySelector("#progressText").textContent = `${count} de 9 evaluados`;
+      document.querySelector("#progressFill").style.width = `${count / 9 * 100}%`;
+    }
+    function showToast(message) { toast.textContent = message; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2600); }
+    function normalizeScores(value) {
+      if (Array.isArray(value)) return Object.fromEntries(value.map(v => [String(v.challenge_number), Number(v.score)]));
+      return value || {};
+    }
+    function distinctLatest(rows) {
+      const map = new Map();
+      for (const row of rows) {
+        const prev = map.get(row.evaluator_name);
+        if (!prev || new Date(row.updated_at || row.created_at || 0) >= new Date(prev.updated_at || prev.created_at || 0)) map.set(row.evaluator_name, {...row, scores: normalizeScores(row.scores)});
+      }
+      return [...map.values()];
+    }
+    function renderSummary(rows) {
+      const latest = distinctLatest(rows); allVotes = latest;
+      const averages = challenges.map(c => {
+        const values = latest.map(v => Number(v.scores?.[String(c.id)])).filter(n => Number.isFinite(n) && n >= 1 && n <= 10);
+        return {challenge:c, average:values.length ? values.reduce((a,b)=>a+b,0)/values.length : null, votes:values.length};
+      });
+      const votedCount = latest.length;
+      document.querySelector("#voteCount").textContent = votedCount;
+      document.querySelector("#voteLabel").textContent = votedCount === 1 ? "integrante ha votado" : "integrantes han votado";
+      const complete = averages.filter(a => a.average !== null);
+      if (complete.length) {
+        const lowest = [...complete].sort((a,b)=>a.average-b.average)[0];
+        document.querySelector("#lowestName").textContent = `${String(lowest.challenge.id).padStart(2,"0")} · ${lowest.challenge.title}`;
+        document.querySelector("#lowestHint").textContent = `Promedio ${lowest.average.toFixed(1)}/10 con ${lowest.votes} evaluaciones. Revisemos si conviene descartarlo primero.`;
+      } else {
+        document.querySelector("#lowestName").textContent = "Aún sin evaluaciones";
+        document.querySelector("#lowestHint").textContent = "Cuando haya votos, el promedio más bajo aparecerá aquí.";
+      }
+      const ranking = averages.filter(a=>a.average!==null).sort((a,b)=>b.average-a.average);
+      document.querySelector("#ranking").innerHTML = ranking.length ? ranking.map((row,i)=>`<div class="rank-item"><span class="rank-num">${String(i+1).padStart(2,"0")}</span><span class="rank-name">${String(row.challenge.id).padStart(2,"0")} · ${row.challenge.title}</span><strong class="rank-score">${row.average.toFixed(1)}</strong><span class="rank-track"><i style="width:${row.average*10}%"></i></span></div>`).join("") : `<div class="empty-rank">Las puntuaciones aparecerán al guardar la primera evaluación.</div>`;
+      renderMentorTable(latest);
+      if (evaluator.value) {
+        const saved = latest.find(v=>v.evaluator_name===evaluator.value);
+        if (saved && Object.keys(currentScores).length===0) { currentScores={...saved.scores}; renderFormScores(); }
+      }
+    }
+    function renderMentorTable(rows) {
+      const container=document.querySelector("#mentorTableContainer");
+      document.querySelector("#mentorVoteCount").textContent=`${rows.length} ${rows.length===1?"evaluación":"evaluaciones"}`;
+      if(!rows.length){container.innerHTML='<div class="mentor-empty">Todavía no hay evaluaciones para mostrar.</div>';return;}
+      const ordered=[...rows].sort((a,b)=>members.indexOf(a.evaluator_name)-members.indexOf(b.evaluator_name));
+      const heading=challenges.map(c=>`<th scope="col" title="${c.title}">D${String(c.id).padStart(2,"0")}</th>`).join("");
+      const body=ordered.map(v=>`<tr><th scope="row">${escapeHtml(v.evaluator_name)}</th>${challenges.map(c=>`<td>${Number(v.scores?.[String(c.id)])||"—"}</td>`).join("")}</tr>`).join("");
+      const averages=challenges.map(c=>{const values=ordered.map(v=>Number(v.scores?.[String(c.id)])).filter(n=>Number.isFinite(n)&&n>=1&&n<=10);return `<td>${values.length?(values.reduce((x,y)=>x+y,0)/values.length).toFixed(1):"—"}</td>`;}).join("");
+      container.innerHTML=`<div class="table-wrap" role="region" aria-label="Votos por integrante y desafío" tabindex="0"><table class="mentor-table"><thead><tr><th scope="col">Integrante</th>${heading}</tr></thead><tbody>${body}<tr class="avg-row"><th scope="row">Promedio del equipo</th>${averages}</tr></tbody></table></div>`;
+    }
+    function escapeHtml(value) { return String(value).replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch])); }
+    function exportVotesCsv() {
+      if(!allVotes.length){showToast("Aún no hay evaluaciones para descargar.");return;}
+      const quote=value=>`"${String(value??"").replace(/"/g,'""')}"`;
+      const rows=[["Integrante",...challenges.map(c=>`${String(c.id).padStart(2,"0")} - ${c.title}`)],...allVotes.map(v=>[v.evaluator_name,...challenges.map(c=>v.scores?.[String(c.id)]??"")])];
+      const csv="\uFEFF"+rows.map(row=>row.map(quote).join(",")).join("\r\n"), blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), link=document.createElement("a");
+      link.href=url;link.download="outstrip-evaluaciones-rally.csv";document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);showToast("Descarga de evaluaciones iniciada.");
+    }
+    async function refreshVotes() {
+      if (supabase) {
+        const {data,error}=await supabase.from("rally_evaluations").select("evaluator_name,scores,created_at,updated_at");
+        if (error) throw error;
+        renderSummary(data||[]);
+      } else {
+        let local=[]; try { local=JSON.parse(localStorage.getItem(LOCAL_KEY)||"[]"); } catch {}
+        renderSummary(local);
+      }
+    }
+    async function saveEvaluation() {
+      const name=evaluator.value;
+      if (!name) { showToast("Selecciona tu nombre antes de guardar."); evaluator.focus(); return; }
+      if (Object.keys(currentScores).length!==challenges.length || challenges.some(c=>!currentScores[c.id])) { showToast("Puntúa los nueve desafíos para guardar."); return; }
+      const button=document.querySelector("#saveButton"); button.disabled=true;
+      const row={evaluator_name:name,scores:currentScores,updated_at:new Date().toISOString()};
+      try {
+        if (supabase) {
+          const {error}=await supabase.from("rally_evaluations").upsert(row,{onConflict:"evaluator_name"});
+          if (error) throw error;
+        } else {
+          const existing=JSON.parse(localStorage.getItem(LOCAL_KEY)||"[]");
+          const updated=existing.filter(v=>v.evaluator_name!==name); updated.push({...row,created_at:new Date().toISOString()});
+          localStorage.setItem(LOCAL_KEY,JSON.stringify(updated));
+        }
+        await refreshVotes(); showToast(supabase?"Evaluación guardada para todo el equipo.":"Guardada en este navegador; falta conectar Supabase.");
+      } catch (error) {
+        console.error(error); showToast("No se pudo guardar. Revisa la conexión y la configuración de Supabase.");
+      } finally { button.disabled=false; }
+    }
+    if (supabase) {
+      const status=document.querySelector("#dbStatus"); status.classList.add("connected"); status.querySelector("span").textContent="Supabase conectado";
+      const banner=document.querySelector("#connectionBanner"); banner.classList.add("connected"); banner.innerHTML="<span>✓</span><div><strong>Votación compartida activa.</strong> Las evaluaciones se guardan en la base Supabase del equipo.</div>";
+    }
+    refreshVotes().catch(error=>{ console.error(error); const banner=document.querySelector("#connectionBanner"); banner.classList.add("error"); banner.innerHTML="<span>!</span><div><strong>No se pudo leer la base compartida.</strong> Revisa el proyecto Supabase y las políticas incluidas en schema.sql.</div>"; });
+    setInterval(() => refreshVotes().catch(error => console.error(error)), 15000);
+  </script>
+</body>
+</html>

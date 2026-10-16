@@ -74,7 +74,7 @@
     </div>
   </main>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script>
+  <script type="module">
     // La llave anon de Supabase está diseñada para uso en navegador; la protección real se aplica con RLS en schema.sql.
     const SUPABASE_URL = window.RALLY_CONFIG?.supabaseUrl || "";
     const SUPABASE_ANON_KEY = window.RALLY_CONFIG?.supabaseAnonKey || "";

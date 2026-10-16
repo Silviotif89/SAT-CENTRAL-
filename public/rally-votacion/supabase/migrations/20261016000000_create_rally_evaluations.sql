@@ -3,15 +3,16 @@ returns boolean
 language sql
 immutable
 as $$
-  select jsonb_typeof(value) = 'object'
-     and jsonb_object_length(value) = 9
-     and value ?& array['1','2','3','4','5','6','7','8','9']
-     and not exists (
-       select 1
-       from jsonb_each_text(value) as item(key, score)
-       where item.key not in ('1','2','3','4','5','6','7','8','9')
-          or item.score !~ '^(10|[1-9])$'
-     );
+  select case when jsonb_typeof(value) = 'object' then
+       (select count(*) = 9 from jsonb_object_keys(value))
+       and value ?& array['1','2','3','4','5','6','7','8','9']
+       and not exists (
+         select 1
+         from jsonb_each_text(value) as item(key, score)
+         where item.key not in ('1','2','3','4','5','6','7','8','9')
+            or item.score !~ '^(10|[1-9])$'
+       )
+     else false end;
 $$;
 
 create table if not exists public.rally_evaluations (

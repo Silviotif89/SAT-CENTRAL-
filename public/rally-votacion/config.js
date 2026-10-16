@@ -1,6 +1,6 @@
-// Sustituir estos valores por la URL del proyecto y la llave pública anon/publishable.
-// No colocar aquí una llave service_role o secret.
+// Configuración pública del Rally. La llave publishable está protegida por RLS.
+// Nunca colocar aquí una llave secret o service_role.
 window.RALLY_CONFIG = {
-  supabaseUrl: "",
-  supabaseAnonKey: ""
+  supabaseUrl: "https://ajfpbugjnlplrqlzlpyo.supabase.co",
+  supabaseAnonKey: "sb_publishable_3VIi8m0ThUqbl6eY0UYLpg_DdIT2gEQ"
 };

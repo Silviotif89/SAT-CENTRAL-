@@ -67,6 +67,19 @@ React, TypeScript, Vite, Tailwind CSS y Lucide React.
 
 Las claves reales nunca deben subirse a GitHub. Los roles previstos son `ADMIN`, `NIVEL_CENTRAL` y `DELEGADO`. La interfaz puede adaptar controles según el rol, pero la protección real deberá hacerse con Row Level Security en Supabase.
 
+## Google Calendar en SAT Central
+
+El botón **Enlazar calendario** del Plan mensual lee las capacitaciones ya guardadas en Supabase y las sincroniza con el calendario principal de la cuenta Google autorizada. Cada evento lleva a la persona responsable en el título, asigna verde a las capacitaciones territoriales y rojo a DDT o INTUR Central, y conserva fecha, horario, lugar y estado.
+
+Para habilitarlo en GitHub Pages:
+
+1. Activar Google Calendar API y crear un ID de cliente OAuth para aplicación web.
+2. En la configuración del cliente, permitir como origen autorizado el dominio de GitHub Pages del SAT Central.
+3. En el repositorio de GitHub, crear la variable de Actions `VITE_GOOGLE_CLIENT_ID` con ese ID público.
+4. Volver a ejecutar el flujo `Publicar SAT en GitHub Pages`.
+
+La sincronización solicita permiso al usuario de Google al enlazar el plan. Los eventos creados se identifican con metadatos privados para actualizarse sin duplicados. No requiere cambios de esquema en Supabase.
+
 ## Integración documental INTUR
 
 La arquitectura de las vistas preliminares se alinea con los skills locales de Plan Semanal e Informe Semanal. La generación futura de Word deberá trabajar sobre el último documento aprobado, mantener un único archivo por período y comprobar los totales desde el detalle. Consultá [docs/integracion-documental.md](docs/integracion-documental.md).

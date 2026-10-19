@@ -1,0 +1,28 @@
+.monthly-export-actions .calendar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #176b55;
+  color: #fff;
+}
+
+.monthly-export-actions .calendar-link:hover { background: #105844; }
+.monthly-export-actions .calendar-link svg { width: 17px; }
+
+.calendar-sync-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  font-size: .8rem;
+  font-weight: 750;
+}
+
+.calendar-sync-message svg { width: 18px; flex: none; }
+
+@media (max-width: 760px) {
+  .monthly-export-actions .calendar-link { width: 100%; }
+}

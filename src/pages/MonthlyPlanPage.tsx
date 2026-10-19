@@ -1,5 +1,6 @@
-import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Download, List, RotateCcw, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { CalendarDays, CalendarRange, CheckCircle2, ChevronLeft, ChevronRight, Download, Link2, List, RotateCcw, Upload } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import '../monthlyCalendarSync.css'
 import { ActivityList } from '../components/ActivityList'
 import { StatusBadge } from '../components/StatusBadge'
 import { delegations } from '../data/delegations'
@@ -7,6 +8,7 @@ import { useActivities } from '../hooks/useActivities'
 import { currentMonthKey } from '../lib/activity'
 import { exportActivitiesExcel } from '../services/exportActivitiesExcel'
 import { exportMonthlyReportExcel, monthlyReportedActivities } from '../services/exportMonthlyReportExcel'
+import { prepareGoogleCalendar, syncGoogleCalendarMonth } from '../services/googleCalendar'
 import { parseMonthlyPlanExchange } from '../services/monthlyPlanExchange'
 import type { Activity } from '../types'
 
@@ -15,6 +17,7 @@ const weekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void }) {
   const { activities, importMonthlyPlan } = useActivities()
+  useEffect(() => { void prepareGoogleCalendar() }, [])
   const initialMonth = currentMonthKey()
   const [month, setMonth] = useState(initialMonth)
   const [pickerYear, setPickerYear] = useState(Number(initialMonth.slice(0, 4)))
@@ -24,6 +27,8 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [linkingCalendar, setLinkingCalendar] = useState(false)
+  const [calendarMessage, setCalendarMessage] = useState('')
   const [error, setError] = useState('')
   const [importMessage, setImportMessage] = useState('')
 
@@ -66,6 +71,18 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
     finally { setExporting(false) }
   }
 
+  async function linkCalendar() {
+    setError(''); setCalendarMessage(''); setLinkingCalendar(true)
+    try {
+      const result = await syncGoogleCalendarMonth(activities, month)
+      const details = [`${result.created} nuevas`, `${result.updated} actualizadas`]
+      if (result.removed) details.push(`${result.removed} canceladas retiradas`)
+      setCalendarMessage(`${result.total} capacitaciones enlazadas con Google Calendar: ${details.join(', ')}.`)
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo enlazar Google Calendar. Intenta nuevamente.')
+    } finally { setLinkingCalendar(false) }
+  }
+
   async function importPlanFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
@@ -83,6 +100,7 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
     <header className="page-header">
       <div><p>Consolidado mensual</p><h1>Plan mensual</h1></div>
       <div className="monthly-export-actions">
+        <button className="button calendar-link" disabled={linkingCalendar || !monthItems.length} onClick={linkCalendar}><Link2 /> {linkingCalendar ? 'Enlazando…' : 'Enlazar calendario'}</button>
         <label className="button export import-plan-button"><Upload /> Cargar plan desde SAT Capacitaciones<input type="file" accept="application/json,.json" onChange={importPlanFile} /></label>
         <button className="button export" disabled={!month} onClick={() => exportActivitiesExcel(activities, 'month', `${month}-01`, '', 'monthly-plan')}><Download /> Descargar Excel</button>
         <button className="button export" disabled={exporting || !reported.length} onClick={downloadReport}><Download /> {exporting ? 'Generando informe…' : 'Informe de gestión'}</button>
@@ -117,7 +135,8 @@ export function MonthlyPlanPage({ onSelect }: { onSelect: (a: Activity) => void 
       <p className="monthly-count" aria-live="polite">{items.length} {items.length === 1 ? 'actividad visible' : 'actividades visibles'} en {monthName.toLowerCase()} de {year}{hasFilters ? ' con los filtros aplicados' : ''}.</p>
     </section>
 
-    {error && <p role="alert">{error}</p>}
+    {error && <p className="calendar-sync-message error-message" role="alert">{error}</p>}
+    {calendarMessage && <p className="calendar-sync-message success-message" role="status"><CheckCircle2 />{calendarMessage}</p>}
     {importMessage && <p className="import-plan-message" role="status">{importMessage}</p>}
     <div className="format-note"><strong>Plan e informe de gestión mensual</strong><p>Para consolidar el plan territorial, descargá “Exportar para SAT Central” desde la consola administrativa de SAT Plan Capacitaciones y cargá aquí el archivo JSON. Las actividades repetidas no se duplican.</p><p>El botón Descargar Excel conserva las capacitaciones programadas, reprogramadas y desarrolladas del mes; solo excluye las canceladas. El botón Informe de gestión genera el formato institucional con el avance POA y la territorialización de las actividades reportadas con asistencia válida.</p><p>Informe de gestión: {reported.length ? `${reported.length} actividades reportadas con asistencia completa y validada para este mes.` : 'No hay actividades reportadas con asistencia completa y validada para este mes.'}</p></div>
 

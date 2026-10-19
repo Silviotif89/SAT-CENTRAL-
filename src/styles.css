@@ -159,3 +159,8 @@
 .executive-map-detail.critical .executive-progress span{background:linear-gradient(90deg,#c5324e,#ee7383);box-shadow:0 0 16px rgba(197,50,78,.42)}.executive-map-detail.progress .executive-progress span{background:linear-gradient(90deg,#ee8b95,#f5b5bc);box-shadow:0 0 16px rgba(238,139,149,.42)}.executive-map-detail.near .executive-progress span{background:linear-gradient(90deg,#e6b52e,#f7d976);box-shadow:0 0 16px rgba(242,201,76,.42)}
 .executive-ranking-card.progress{border-left-color:#ee8b95}.executive-ranking-card.near{border-left-color:#e6b52e}.executive-ranking-card.progress em{color:#bb5360}.executive-ranking-card.near em{color:#8b6500}
 .executive-ranking-card.progress .executive-rank-progress i{background:#ee8b95}.executive-ranking-card.near .executive-rank-progress i{background:#f2c94c}
+
+/* Semáforo exclusivo del mapa territorial de delegaciones. */
+.executive-map-legend i.critical{background:#C73545}.executive-map-legend i.progress{background:#F28C28}.executive-map-legend i.near{background:#F2C94C}.executive-map-legend i.met{background:linear-gradient(90deg,#63B96A 50%,#16834A 50%)}
+.executive-map-canvas .map-region.map-dark-green path{fill:#16834A}.executive-map-canvas .map-region.map-light-green path{fill:#63B96A}.executive-map-canvas .map-region.map-yellow path{fill:#F2C94C}.executive-map-canvas .map-region.map-orange path{fill:#F28C28}.executive-map-canvas .map-region.map-red path{fill:#C73545}
+.executive-map-tooltip.map-dark-green{border-top-color:#16834A}.executive-map-tooltip.map-light-green{border-top-color:#63B96A}.executive-map-tooltip.map-yellow{border-top-color:#F2C94C}.executive-map-tooltip.map-orange{border-top-color:#F28C28}.executive-map-tooltip.map-red{border-top-color:#C73545}

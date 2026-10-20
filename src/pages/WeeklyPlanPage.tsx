@@ -3,7 +3,7 @@ import {useMemo,useState} from 'react'
 import {WeeklyPlanReviewModal} from '../components/WeeklyPlanReviewModal'
 import {delegationName,delegations} from '../data/delegations'
 import {useActivities} from '../hooks/useActivities'
-import {inDateRange,toInputDate,weekRange} from '../lib/activity'
+import {inDateRange,toInputDate,weeklyPlanRange,weekRange} from '../lib/activity'
 import {planReviewComplete,planReviewStatus,weeklyPlanMissingFields} from '../lib/weeklyPlanReview'
 import {exportWeeklyPlanImage} from '../services/exportWeeklyPlanImage'
 import {exportWeeklyPlanWord} from '../services/exportWeeklyPlanWord'
@@ -22,7 +22,7 @@ export function WeeklyPlanPage(){
  const {activities}=useActivities()
  const [week,setWeek]=useState(()=>weekRange(toInputDate(new Date())).start),[delegation,setDelegation]=useState(''),[reviewVisible,setReviewVisible]=useState(false),[selected,setSelected]=useState<Activity|null>(null),[exportingWord,setExportingWord]=useState(false),[exportingImage,setExportingImage]=useState(false),[exportError,setExportError]=useState('')
  const [calendarOpen,setCalendarOpen]=useState(false),[calendarMonth,setCalendarMonth]=useState(()=>{const today=new Date();return new Date(today.getFullYear(),today.getMonth(),1)})
- const range=weekRange(week)
+ const range=weeklyPlanRange(week)
  const calendarDays=useMemo(()=>{const offset=(calendarMonth.getDay()+6)%7,last=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,0).getDate();return [...Array<number|null>(offset).fill(null),...Array.from({length:last},(_,index)=>index+1)]},[calendarMonth])
  const items=useMemo(()=>activities.filter(a=>inDateRange(a,range.start,range.end)&&(!delegation||a.delegationId===delegation)).sort((a,b)=>`${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),[activities,range.start,range.end,delegation])
  const itemsByReviewStatus=useMemo(()=>reviewOrder.map(status=>({status,items:items.filter(activity=>planReviewStatus(activity)===status)})).filter(group=>group.items.length>0),[items])
@@ -37,8 +37,8 @@ export function WeeklyPlanPage(){
 
   <section className="week-range-panel">
    <div className="week-range-icon"><CalendarCheck2/></div>
-   <div className="week-range-copy"><span>Semana de trabajo</span><strong>Lunes {fullDate(range.start)}</strong><b>al</b><strong>Viernes {fullDate(range.end)}</strong></div>
-   <div className="week-range-days"><span><b>{shortDate(range.start)}</b>Lunes</span><i/><span><b>{shortDate(range.end)}</b>Viernes</span></div>
+   <div className="week-range-copy"><span>Semana de trabajo</span><strong>Lunes {fullDate(range.start)}</strong><b>al</b><strong>Domingo {fullDate(range.end)}</strong></div>
+   <div className="week-range-days"><span><b>{shortDate(range.start)}</b>Lunes</span><i/><span><b>{shortDate(range.end)}</b>Domingo</span></div>
   </section>
 
   <section className="filters compact-filters weekly-plan-filters"><div className="week-field"><span>Lunes de la semana</span><div className="week-date-control"><button type="button" className="week-step" aria-label="Semana anterior" title="Semana anterior" onClick={()=>changeWeek(-7)}><ChevronLeft/></button><div className="week-picker-wrap"><button type="button" className="week-date-display" aria-haspopup="dialog" aria-expanded={calendarOpen} onClick={openCalendar}><span>{fullDate(range.start)}</span><CalendarDays/></button>{calendarOpen&&<div className="week-calendar" role="dialog" aria-label="Seleccionar semana"><header><button type="button" aria-label="Mes anterior" onClick={()=>setCalendarMonth(current=>new Date(current.getFullYear(),current.getMonth()-1,1))}><ChevronLeft/></button><strong className="capitalize">{monthTitle(calendarMonth)}</strong><button type="button" aria-label="Mes siguiente" onClick={()=>setCalendarMonth(current=>new Date(current.getFullYear(),current.getMonth()+1,1))}><ChevronRight/></button></header><div className="week-calendar-labels">{weekDays.map(day=><span key={day}>{day}</span>)}</div><div className="week-calendar-grid">{calendarDays.map((day,index)=>{if(!day)return <span key={`blank-${index}`}/>;const value=toInputDate(new Date(calendarMonth.getFullYear(),calendarMonth.getMonth(),day));const inWeek=value>=range.start&&value<=range.end;const isMonday=value===range.start;return <button type="button" key={value} className={`${isMonday?'selected ':''}${inWeek?'in-week':''}`} aria-label={`${fullDate(value)}; semana desde el lunes ${fullDate(weekRange(value).start)}`} aria-pressed={isMonday} onClick={()=>selectDate(value)}>{day}</button>})}</div><footer><button type="button" onClick={()=>selectDate(toInputDate(new Date()))}>Semana actual</button><span>Al elegir un día, se selecciona su lunes</span></footer></div>}</div><button type="button" className="week-step" aria-label="Semana siguiente" title="Semana siguiente" onClick={()=>changeWeek(7)}><ChevronRight/></button></div></div><label>Delegación<select value={delegation} onChange={e=>{setDelegation(e.target.value);setExportError('')}}><option value="">Todas</option>{delegations.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label><button className="button primary check-plan-button" onClick={()=>setReviewVisible(current=>!current)}><FileCheck2/> Comprobar plan semanal {reviewVisible?<ChevronUp/>:<ChevronDown/>}</button></section>

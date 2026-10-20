@@ -1,5 +1,5 @@
 import PizZip from 'pizzip'
-import {weekRange,inDateRange} from '../lib/activity'
+import {weeklyPlanRange,inDateRange} from '../lib/activity'
 import type {Activity} from '../types'
 const WORD_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 const XML_NS='http://www.w3.org/XML/1998/namespace'
@@ -115,9 +115,9 @@ function buildDocumentXml(source:string,items:Activity[],range:WeekRange){
  return new XMLSerializer().serializeToString(xml)
 }
 export async function createWeeklyPlanWord(items:Activity[],range:WeekRange){
- const expected=weekRange(range.start)
- if(!/^\d{4}-\d{2}-\d{2}$/.test(range.start)||!Number.isFinite(parseDate(range.start).getTime())||expected.start!==range.start||expected.end!==range.end)throw new Error('El plan semanal debe abarcar de lunes a viernes de la misma semana.')
- const selected=items.filter(a=>a.status!=='CANCELADA'&&inDateRange(a,range.start,range.end)&&parseDate(a.date).getDay()>=1&&parseDate(a.date).getDay()<=5)
+ const expected=weeklyPlanRange(range.start)
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(range.start)||!Number.isFinite(parseDate(range.start).getTime())||expected.start!==range.start||expected.end!==range.end)throw new Error('El plan semanal debe abarcar de lunes a domingo de la misma semana.')
+ const selected=items.filter(a=>a.status!=='CANCELADA'&&inDateRange(a,range.start,range.end))
  const response=await fetch(new URL('templates/Plan_semanal_INTUR_base.docx',document.baseURI).toString())
  if(!response.ok)throw new Error('No se pudo cargar la plantilla institucional del plan semanal.')
  const zip=new PizZip(await response.arrayBuffer()),doc=zip.file('word/document.xml')

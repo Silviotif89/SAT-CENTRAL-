@@ -1,4 +1,4 @@
-import {inDateRange,weekRange} from '../lib/activity'
+import {inDateRange,weeklyPlanRange} from '../lib/activity'
 import {delegationName} from '../data/delegations'
 import type {Activity} from '../types'
 import {weeklyPlanDates} from './exportWeeklyPlanWord'
@@ -95,9 +95,9 @@ function download(blob:Blob,name:string){
 }
 
 export async function createWeeklyPlanImage(items:Activity[],range:WeekRange){
- const expected=weekRange(range.start)
- if(!/^\d{4}-\d{2}-\d{2}$/.test(range.start)||expected.start!==range.start||expected.end!==range.end)throw new Error('El plan semanal debe abarcar de lunes a viernes de la misma semana.')
- const selected=items.filter(activity=>activity.status!=='CANCELADA'&&inDateRange(activity,range.start,range.end)&&parseDate(activity.date).getDay()>=1&&parseDate(activity.date).getDay()<=5).sort((a,b)=>a.date.localeCompare(b.date)||timeOrder(a.time)-timeOrder(b.time)||a.topic.localeCompare(b.topic,'es'))
+ const expected=weeklyPlanRange(range.start)
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(range.start)||expected.start!==range.start||expected.end!==range.end)throw new Error('El plan semanal debe abarcar de lunes a domingo de la misma semana.')
+ const selected=items.filter(activity=>activity.status!=='CANCELADA'&&inDateRange(activity,range.start,range.end)).sort((a,b)=>a.date.localeCompare(b.date)||timeOrder(a.time)-timeOrder(b.time)||a.topic.localeCompare(b.topic,'es'))
  if(!selected.length)throw new Error('No hay actividades para incluir en la imagen del plan semanal.')
 
  const canvas=document.createElement('canvas'),measure=canvas.getContext('2d')

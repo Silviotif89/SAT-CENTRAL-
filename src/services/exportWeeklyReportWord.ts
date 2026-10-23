@@ -114,6 +114,13 @@ function appendField(xml:XMLDocument, body:Element, section:Element, fieldTempla
  body.insertBefore(keepWithNext(xml,paragraphFrom(xml,fieldTemplate,[{text:`${label}:`,bold:true},{text:` ${value}`}])) ,section)
 }
 
+function weeklyReportLocation(activity:Activity){
+ const department=clean(delegationName(activity.delegationId),'Delegación pendiente de confirmar')
+ const municipality=clean(activity.municipality)
+ const location=clean(activity.location||activity.municipality)
+ return `${department}, ${municipality}, ${location}`
+}
+
 function timeOrder(value:string){
  const match=value.toLocaleLowerCase('es').match(/(\d{1,2})(?::(\d{2}))?\s*(a\.?\s*m\.?|p\.?\s*m\.?)/)
  if(!match)return Number.MAX_SAFE_INTEGER
@@ -160,7 +167,7 @@ function buildDocumentXml(source:string,items:Activity[],range:WeekRange){
   for(const activity of activities){
    body.insertBefore(keepWithNext(xml,paragraphFrom(xml,activityTemplate,[{text:`${number}. ${sentence(clean(activity.topic,'Actividad de capacitación'))}`}])),section)
    appendField(xml,body,section,fieldTemplate,'Hora',clean(activity.time))
-   appendField(xml,body,section,fieldTemplate,'Lugar',clean(activity.location||activity.municipality))
+   appendField(xml,body,section,fieldTemplate,'Lugar',weeklyReportLocation(activity))
    appendField(xml,body,section,fieldTemplate,'Participan',clean(activity.institution,`Delegación INTUR ${delegationName(activity.delegationId)}`))
    const participants=validAttendance(activity)
     ?`${activity.totalParticipants} Total (${activity.men} M ${activity.women} F)`

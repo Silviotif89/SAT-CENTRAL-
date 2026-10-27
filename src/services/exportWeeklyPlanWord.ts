@@ -1,4 +1,5 @@
 import PizZip from 'pizzip'
+import {delegationName} from '../data/delegations'
 import {weeklyPlanRange,inDateRange} from '../lib/activity'
 import type {Activity} from '../types'
 const WORD_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
@@ -16,6 +17,13 @@ function periodLabel(range:WeekRange){
 }
 function clearParagraph(paragraph:Element){
  for(const child of [...paragraph.children])if(child.localName!=='pPr')paragraph.removeChild(child)
+}
+
+function weeklyPlanLocation(activity:Activity){
+ const department=clean(delegationName(activity.delegationId))
+ const municipality=clean(activity.municipality)
+ const location=clean(activity.location||activity.municipality)
+ return `${department}, ${municipality}, ${location}`
 }
 
 function runIsBold(run:Element){return Boolean(run.getElementsByTagNameNS(WORD_NS,'b').length)}
@@ -96,7 +104,7 @@ function buildDocumentXml(source:string,items:Activity[],range:WeekRange){
   // Keep the template's native Word list; its single numId numbers the entire week.
   add(keepWithNext(xml,paragraphFrom(xml,topic,[{text:clean(activity.topic)}])))
   appendField(xml,body,section,hour,'Hora',clean(activity.time))
-  appendField(xml,body,section,place,'Lugar',clean(activity.location||activity.municipality))
+  appendField(xml,body,section,place,'Lugar',weeklyPlanLocation(activity))
   appendField(xml,body,section,participants,'Participan',clean(activity.institution))
   appendField(xml,body,section,projection,'Proyección de Participantes',Number.isFinite(activity.projectedParticipants)&&activity.projectedParticipants>=0?`${activity.projectedParticipants} protagonistas.`:'Pendiente de confirmar')
   const person=activity.trainingProvider==='DDT (INTUR)'&&activity.ddtFacilitator.trim()?activity.ddtFacilitator:activity.responsible||activity.trainingProvider

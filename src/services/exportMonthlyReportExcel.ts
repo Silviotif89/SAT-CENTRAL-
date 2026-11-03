@@ -29,11 +29,11 @@ function replaceCell(xml: string, ref: string, content: string, type = '') {
   const cell = new RegExp(`<c\\b([^>]*\\br="${ref}"[^>]*)>[\\s\\S]*?</c>`)
   const emptyCell = new RegExp(`<c\\b([^>]*\\br="${ref}"[^>]*)/>`)
   const build = (attributes: string) => {
-    const clean = attributes.replace(/\\s+t="[^"]*"/g, '')
+    const clean = attributes.replace(/\s+t="[^"]*"/g, '')
     return `<c${clean}${type ? ` t="${type}"` : ''}>${content}</c>`
   }
-  if (cell.test(xml)) return xml.replace(cell, (_, attributes: string) => build(attributes))
   if (emptyCell.test(xml)) return xml.replace(emptyCell, (_, attributes: string) => build(attributes))
+  if (cell.test(xml)) return xml.replace(cell, (_, attributes: string) => build(attributes))
   throw new Error(`No se encontró la celda ${ref} en la plantilla mensual`)
 }
 

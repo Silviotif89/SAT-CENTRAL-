@@ -3,7 +3,7 @@ import {useMemo,useState} from 'react'
 import {WeeklyReportSelectionList} from '../components/WeeklyReportSelectionList'
 import {delegations} from '../data/delegations'
 import {useActivities} from '../hooks/useActivities'
-import {inWorkWeek,toInputDate,wasRescheduled,weekRange} from '../lib/activity'
+import {inDateRange,toInputDate,wasRescheduled,weekRange,weeklyReportRange} from '../lib/activity'
 import {exportWeeklyReportWord} from '../services/exportWeeklyReportWord'
 import type {Activity} from '../types'
 
@@ -19,9 +19,10 @@ export function WeeklyReportPage({onSelect}:{onSelect:(activity:Activity)=>void}
  const [week,setWeek]=useState(()=>weekRange(toInputDate(new Date())).start),[delegation,setDelegation]=useState(''),[exporting,setExporting]=useState(false),[exportError,setExportError]=useState('')
  const [view,setView]=useState<'all'|'confirmed'>('all')
  const [calendarOpen,setCalendarOpen]=useState(false),[calendarMonth,setCalendarMonth]=useState(()=>{const today=new Date();return new Date(today.getFullYear(),today.getMonth(),1)})
- const range=weekRange(week)
+ const range=weeklyReportRange(week)
+ const endDay=parseDate(range.end).getDay()===6?'Sábado':'Viernes'
  const calendarDays=useMemo(()=>{const offset=(calendarMonth.getDay()+6)%7,last=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,0).getDate();return [...Array<number|null>(offset).fill(null),...Array.from({length:last},(_,index)=>index+1)]},[calendarMonth])
- const items=activities.filter(activity=>inWorkWeek(activity,range.start)&&(!delegation||activity.delegationId===delegation))
+ const items=activities.filter(activity=>inDateRange(activity,range.start,range.end)&&(!delegation||activity.delegationId===delegation))
  const confirmedItems=items.filter(activity=>activity.status!=='CANCELADA'&&activity.weeklyReportStatus==='CONFIRMADA')
  const excludedCount=items.filter(activity=>activity.status==='CANCELADA'||activity.weeklyReportStatus==='EXCLUIDA').length
  const pendingDecisionCount=items.length-confirmedItems.length-excludedCount
@@ -40,8 +41,8 @@ export function WeeklyReportPage({onSelect}:{onSelect:(activity:Activity)=>void}
 
   <section className="week-range-panel weekly-report-range">
    <div className="week-range-icon"><CalendarCheck2/></div>
-   <div className="week-range-copy"><span>Semana del informe</span><strong>Lunes {fullDate(range.start)}</strong><b>al</b><strong>Viernes {fullDate(range.end)}</strong></div>
-   <div className="week-range-days"><span><b>{shortDate(range.start)}</b>Lunes</span><i/><span><b>{shortDate(range.end)}</b>Viernes</span></div>
+   <div className="week-range-copy"><span>Semana del informe</span><strong>Lunes {fullDate(range.start)}</strong><b>al</b><strong>{endDay} {fullDate(range.end)}</strong></div>
+   <div className="week-range-days"><span><b>{shortDate(range.start)}</b>Lunes</span><i/><span><b>{shortDate(range.end)}</b>{endDay}</span></div>
   </section>
 
   <section className="filters compact-filters weekly-report-filters">

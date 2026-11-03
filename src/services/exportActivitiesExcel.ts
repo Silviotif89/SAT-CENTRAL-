@@ -1,6 +1,6 @@
 import {delegations,delegationName} from '../data/delegations'
 import {ddtFacilitators,trainingProviders} from '../data/facilitators'
-import {inDateRange,STATUS_LABEL,toInputDate,wasRescheduled,weekRange} from '../lib/activity'
+import {inDateRange,STATUS_LABEL,toInputDate,wasRescheduled,weekRange,weeklyReportRange} from '../lib/activity'
 import type {Activity} from '../types'
 
 export type ExportPeriod='week'|'month'|'year'|'all'
@@ -79,7 +79,7 @@ function summarySheet(XLSX:typeof import('xlsx-js-style'),selected:Activity[],pe
 }
 
 export async function exportActivitiesExcel(activities:Activity[],period:ExportPeriod,reference=toInputDate(new Date()),delegationId='',template:ExportTemplate=period==='week'?'weekly-report':period==='month'?'monthly-plan':period==='all'?'database':'department-summary'){
- const XLSX=await import('xlsx-js-style'),range=period==='week'?weekRange(reference):period==='month'?monthRange(reference):period==='year'?yearRange(reference):null
+ const XLSX=await import('xlsx-js-style'),range=period==='week'?(template==='weekly-report'||template==='department-summary'?weeklyReportRange(reference):weekRange(reference)):period==='month'?monthRange(reference):period==='year'?yearRange(reference):null
  // Preserve the historical monthly plan after activities are reported.
  // `date` is always the effective date after a rescheduling, and only
  // cancelled activities are removed from the plan.

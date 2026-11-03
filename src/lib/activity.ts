@@ -7,6 +7,10 @@ export const inDateRange=(a:Activity,start:string,end:string)=>a.date>=start&&a.
 export const currentMonthKey=()=>new Date().toISOString().slice(0,7)
 export const toInputDate=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 export const weekRange=(value:string)=>{const start=new Date(`${value}T12:00:00`);const day=(start.getDay()+6)%7;start.setDate(start.getDate()-day);const end=new Date(start);end.setDate(start.getDate()+4);return {start:toInputDate(start),end:toInputDate(end)}}
+export const weeklyReportRange=(value:string)=>{
+ const range=weekRange(value)
+ return range.start==='2026-10-26'?{...range,end:'2026-10-31'}:range
+}
 export const weeklyPlanRange=(value:string)=>{const range=weekRange(value),end=new Date(`${range.start}T12:00:00`);end.setDate(end.getDate()+6);return {start:range.start,end:toInputDate(end)}}
 export const inWorkWeek=(activity:Activity,value:string)=>{const range=weekRange(value);return inDateRange(activity,range.start,range.end)}
 

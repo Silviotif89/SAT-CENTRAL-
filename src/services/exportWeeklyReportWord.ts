@@ -1,6 +1,6 @@
 import PizZip from 'pizzip'
 import {delegationName} from '../data/delegations'
-import {inWorkWeek,wasRescheduled,weekRange} from '../lib/activity'
+import {inDateRange,wasRescheduled,weeklyReportRange} from '../lib/activity'
 import type {Activity} from '../types'
 
 const WORD_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
@@ -187,8 +187,8 @@ function buildDocumentXml(source:string,items:Activity[],range:WeekRange){
 }
 
 export async function createWeeklyReportWord(items:Activity[],range:WeekRange){
- const normalizedRange=weekRange(range.start)
- const selected=items.filter(activity=>inWorkWeek(activity,normalizedRange.start))
+ const normalizedRange=weeklyReportRange(range.start)
+ const selected=items.filter(activity=>inDateRange(activity,normalizedRange.start,normalizedRange.end))
  const response=await fetch(TEMPLATE_URL)
  if(!response.ok)throw new Error('No se pudo cargar la plantilla institucional del informe semanal.')
  const template=await response.arrayBuffer()

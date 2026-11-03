@@ -2,7 +2,7 @@ import { Download } from 'lucide-react'
 import { useMemo,useState } from 'react'
 import { delegations } from '../data/delegations'
 import { useActivities } from '../hooks/useActivities'
-import { inDateRange,toInputDate,wasRescheduled,weekRange } from '../lib/activity'
+import { inDateRange,toInputDate,wasRescheduled,weeklyReportRange } from '../lib/activity'
 import { exportActivitiesExcel } from '../services/exportActivitiesExcel'
 import type { Activity } from '../types'
 import type { DepartmentDrilldown } from './ActivitiesPage'
@@ -20,7 +20,7 @@ const aggregate=(items:Activity[])=>({
 
 export function DepartmentSummaryPage({onOpenProgrammed}:{onOpenProgrammed:(drilldown:DepartmentDrilldown)=>void}){
  const {activities}=useActivities(),[period,setPeriod]=useState<Period>('week'),[reference,setReference]=useState(toInputDate(new Date()))
- const range=useMemo(()=>{if(period==='week')return weekRange(reference);const [year,month]=reference.split('-').map(Number);if(period==='year')return {start:`${year}-01-01`,end:`${year}-12-31`};return {start:`${year}-${String(month).padStart(2,'0')}-01`,end:toInputDate(new Date(year!,month!,0))}},[period,reference])
+ const range=useMemo(()=>{if(period==='week')return weeklyReportRange(reference);const [year,month]=reference.split('-').map(Number);if(period==='year')return {start:`${year}-01-01`,end:`${year}-12-31`};return {start:`${year}-${String(month).padStart(2,'0')}-01`,end:toInputDate(new Date(year!,month!,0))}},[period,reference])
  const rows=useMemo(()=>delegations.map(delegation=>{const items=activities.filter(a=>a.delegationId===delegation.id&&inDateRange(a,range.start,range.end));return {delegation,...aggregate(items)}}),[activities,range.start,range.end])
  const totals=aggregate(activities.filter(a=>inDateRange(a,range.start,range.end)))
  return <><header className="page-header"><div><p>Consolidado territorial</p><h1>Resumen departamental</h1><span className="subtext">Del {range.start} al {range.end} · 17 delegaciones INTUR</span></div><button className="button export" onClick={()=>exportActivitiesExcel(activities,period,reference,'','department-summary')}><Download/> Descargar Excel</button></header>

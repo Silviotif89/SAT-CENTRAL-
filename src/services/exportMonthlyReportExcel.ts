@@ -5,7 +5,7 @@ import type { Activity } from '../types'
 const TEMPLATE_URL = new URL('templates/Informe_gestion_mensual_INTUR_base.xlsx',document.baseURI).toString()
 const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 const monthColumns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
-const annualTarget = 13_550
+const annualTarget = 13_500
 const augustBaseline = 11_141
 const territorialRows: Record<string, number> = {
   'del-01': 4, 'del-02': 5, 'del-03': 6, 'del-04': 7, 'del-05': 8, 'del-06': 9,
@@ -71,6 +71,7 @@ export function buildMonthlyReportExcel(template: ArrayBuffer | Uint8Array, acti
 
   summary = setText(summary, 'A2', 'INFORME DE GESTIÓN MENSUAL')
   summary = setText(summary, 'A3', `Mes: ${months[monthIndex]!.toUpperCase()}-2026`)
+  summary = setText(summary, 'B7', annualTarget.toLocaleString('en-US') + ' protagonistas de pequeños y medianos negocios turísticos capacitados.')
   summary = setNumber(summary, 'C7', previous)
   summary = setFormula(summary, 'D7', `TERRITORIALIZACIÓN!${monthColumn}21`, total)
   summary = setFormula(summary, 'E7', 'C7+D7', cumulative)

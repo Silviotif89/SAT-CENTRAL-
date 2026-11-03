@@ -1,7 +1,8 @@
 import PizZip from 'pizzip'
 import {delegationName} from '../data/delegations'
-import {inDateRange,wasRescheduled,weeklyReportRange} from '../lib/activity'
+import {inDateRange,weeklyReportRange} from '../lib/activity'
 import type {Activity} from '../types'
+import {weeklyPlanDates} from './exportWeeklyPlanWord'
 
 const WORD_NS='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 const XML_NS='http://www.w3.org/XML/1998/namespace'
@@ -19,7 +20,6 @@ const cap=(value:string)=>value.charAt(0).toUpperCase()+value.slice(1)
 const lowerFirst=(value:string)=>value.charAt(0).toLocaleLowerCase('es')+value.slice(1)
 const topicForSummary=(value:string)=>lowerFirst(value.replace(/[.]$/,'').replace(/^(capacitación|taller|curso)\s+(en|sobre|de)?\s*/i,'').toLocaleLowerCase('es')).replace(/\b(setec|intur|unan|inatec|mific|minsa|dgi)\b/gi,match=>match.toLocaleUpperCase('es'))
 const formatDay=(value:string)=>{const d=parseDate(value);return `${cap(days[d.getDay()]??'día')} ${d.getDate()} de ${months[d.getMonth()]??'mes'}`}
-const formatFullDate=(value:string)=>{const d=parseDate(value);return `${d.getDate()} de ${months[d.getMonth()]??'mes'} de ${d.getFullYear()}`}
 const formatPeriod=(range:WeekRange)=>`${formatDay(range.start)} al ${formatDay(range.end).toLocaleLowerCase('es')} de ${parseDate(range.end).getFullYear()}`
 const validAttendance=(a:Activity)=>a.status==='DESARROLLADA'&&a.men!==null&&a.women!==null&&a.totalParticipants!==null&&a.men+a.women===a.totalParticipants
 
@@ -52,21 +52,9 @@ function buildSummary(items:Activity[]){
  return summary
 }
 
-function activityObservation(a:Activity){
- const notes:string[]=[]
- if(wasRescheduled(a)){
-  if(a.originalDate)notes.push(`Fecha original: ${formatFullDate(a.originalDate)}; nueva fecha: ${formatFullDate(a.date)}`)
-  else notes.push(`Actividad reprogramada para el ${formatFullDate(a.date)}`)
-  if(a.rescheduleReason.trim())notes.push(`Motivo: ${sentence(a.rescheduleReason)}`)
- }
- if(a.status==='PROGRAMADA')notes.push('Actividad programada; sin reporte de ejecución recibido.')
- if(a.status==='REPROGRAMADA'&&!wasRescheduled(a))notes.push('Actividad reprogramada; sin reporte de ejecución recibido.')
- if(a.status==='DESARROLLADA'&&!validAttendance(a))notes.push('Actividad ejecutada con asistencia pendiente de completar o verificar.')
- if(a.status==='CANCELADA')notes.push(a.cancellationReason.trim()?`Actividad no ejecutada. Motivo: ${sentence(a.cancellationReason)}`:'Actividad no ejecutada.')
- const reportNote=a.report?.observations?.trim()
- if(reportNote)notes.push(sentence(reportNote))
- else if(a.status==='DESARROLLADA'&&a.observations.trim())notes.push(sentence(a.observations))
- return notes.join(' ')
+function activityObservation(activity:Activity){
+ const dates=[weeklyPlanDates(activity.observations),weeklyPlanDates(activity.report?.observations??'')]
+ return [...new Set(dates.filter(Boolean))].join(' ')
 }
 
 function fileName(range:WeekRange){

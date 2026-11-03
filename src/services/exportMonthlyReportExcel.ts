@@ -7,6 +7,7 @@ const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 
 const monthColumns = ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
 const annualTarget = 13_500
 const augustBaseline = 11_141
+const septemberClosing = 12_329
 const territorialRows: Record<string, number> = {
   'del-01': 4, 'del-02': 5, 'del-03': 6, 'del-04': 7, 'del-05': 8, 'del-06': 9,
   'del-07': 10, 'del-08': 11, 'del-09': 12, 'del-10': 13, 'del-11': 14, 'del-12': 15,
@@ -60,11 +61,10 @@ export function buildMonthlyReportExcel(template: ArrayBuffer | Uint8Array, acti
   const men = selected.reduce((sum, activity) => sum + activity.men!, 0)
   const women = selected.reduce((sum, activity) => sum + activity.women!, 0)
   const total = men + women
-  const earlierReported = activities.filter(activity => {
-    const activityMonth = activity.date.slice(0, 7)
-    return activityMonth >= '2026-09' && activityMonth < month && monthlyReportedActivities([activity], activityMonth).length === 1
-  })
-  const previous = augustBaseline + earlierReported.reduce((sum, activity) => sum + activity.totalParticipants!, 0)
+  const earlierMonths = monthColumns.slice(9, monthIndex).map((_, index) =>
+    monthlyReportedActivities(activities, `2026-${index + 10}`))
+  const previous = monthIndex === 8 ? augustBaseline : septemberClosing
+    + earlierMonths.flat().reduce((sum, activity) => sum + activity.totalParticipants!, 0)
   const cumulative = previous + total
   const topics = topicSummary(selected)
   const narrative = `Durante el mes de ${months[monthIndex]} se realizaron ${selected.length} capacitaciones, en las que se capacitó a ${total} protagonistas (${men} hombres y ${women} mujeres).${topics ? ` Se abordaron temas como: ${topics}.` : ''}`
@@ -72,6 +72,7 @@ export function buildMonthlyReportExcel(template: ArrayBuffer | Uint8Array, acti
   summary = setText(summary, 'A2', 'INFORME DE GESTIÓN MENSUAL')
   summary = setText(summary, 'A3', `Mes: ${months[monthIndex]!.toUpperCase()}-2026`)
   summary = setText(summary, 'B7', annualTarget.toLocaleString('en-US') + ' protagonistas de pequeños y medianos negocios turísticos capacitados.')
+  summary = setText(summary, 'E6', `Ejecución acumulada enero - ${months[monthIndex]}`)
   summary = setNumber(summary, 'C7', previous)
   summary = setFormula(summary, 'D7', `TERRITORIALIZACIÓN!${monthColumn}21`, total)
   summary = setFormula(summary, 'E7', 'C7+D7', cumulative)
@@ -80,10 +81,16 @@ export function buildMonthlyReportExcel(template: ArrayBuffer | Uint8Array, acti
   summary = setText(summary, 'H7', narrative)
   summary = setText(summary, 'I7', 'Fortalecer las capacidades técnicas de protagonistas y prestadores de servicios turísticos para mejorar la calidad de la atención y de la oferta turística nacional.')
 
-  const totalsByDelegation = new Map<string, number>()
-  for (const activity of selected) totalsByDelegation.set(activity.delegationId, (totalsByDelegation.get(activity.delegationId) ?? 0) + activity.totalParticipants!)
-  for (const [delegationId, row] of Object.entries(territorialRows)) territorial = setNumber(territorial, `${monthColumn}${row}`, totalsByDelegation.get(delegationId) ?? 0)
-  territorial = setFormula(territorial, `${monthColumn}21`, `SUM(${monthColumn}4:${monthColumn}20)`, total)
+  const monthlyRows = [...earlierMonths, selected]
+  for (const [index, items] of monthlyRows.entries()) {
+    const column = monthColumns[monthIndex - monthlyRows.length + 1 + index]!
+    const totalsByDelegation = new Map<string, number>()
+    for (const activity of items) totalsByDelegation.set(activity.delegationId, (totalsByDelegation.get(activity.delegationId) ?? 0) + activity.totalParticipants!)
+    for (const [delegationId, row] of Object.entries(territorialRows)) territorial = setNumber(territorial, `${column}${row}`, totalsByDelegation.get(delegationId) ?? 0)
+    const monthTotal = items.reduce((sum, activity) => sum + activity.totalParticipants!, 0)
+    territorial = setFormula(territorial, `${column}21`, `SUM(${column}4:${column}20)`, monthTotal)
+  }
+  territorial = setFormula(territorial, 'N21', 'SUM(B21:M21)', cumulative)
 
   zip.file('xl/worksheets/sheet1.xml', summary)
   zip.file('xl/worksheets/sheet2.xml', territorial)

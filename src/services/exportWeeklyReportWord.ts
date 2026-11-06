@@ -21,6 +21,13 @@ const lowerFirst=(value:string)=>value.charAt(0).toLocaleLowerCase('es')+value.s
 const topicForSummary=(value:string)=>lowerFirst(value.replace(/[.]$/,'').replace(/^(capacitación|taller|curso)\s+(en|sobre|de)?\s*/i,'').toLocaleLowerCase('es')).replace(/\b(setec|intur|unan|inatec|mific|minsa|dgi)\b/gi,match=>match.toLocaleUpperCase('es'))
 const formatDay=(value:string)=>{const d=parseDate(value);return `${cap(days[d.getDay()]??'día')} ${d.getDate()} de ${months[d.getMonth()]??'mes'}`}
 const formatPeriod=(range:WeekRange)=>`${formatDay(range.start)} al ${formatDay(range.end).toLocaleLowerCase('es')} de ${parseDate(range.end).getFullYear()}`
+const formatReportTime=(value:string)=>value.replace(/\b(\d{1,2}):([0-5]\d)\b/g,(match,hourText,minutes,offset:number,source:string)=>{
+ const following=source.slice(offset+match.length)
+ if(/^\s*\.?\s*(?:[ap]\.?\s*m\.?|m\.?\s*d?\.?)(?!\w)/i.test(following))return match
+ const hour=Number(hourText)
+ if(hour>23)return match
+ return `${hour%12||12}:${minutes} ${hour<12?'a. m.':'p. m.'}`
+})
 const validAttendance=(a:Activity)=>a.status==='DESARROLLADA'&&a.men!==null&&a.women!==null&&a.totalParticipants!==null&&a.men+a.women===a.totalParticipants
 
 function joinSpanish(values:string[]){
@@ -154,7 +161,7 @@ function buildDocumentXml(source:string,items:Activity[],range:WeekRange){
   body.insertBefore(keepWithNext(xml,blankTemplate.cloneNode(true) as Element),section)
   for(const activity of activities){
    body.insertBefore(keepWithNext(xml,paragraphFrom(xml,activityTemplate,[{text:`${number}. ${sentence(clean(activity.topic,'Actividad de capacitación'))}`}])),section)
-   appendField(xml,body,section,fieldTemplate,'Hora',clean(activity.time))
+   appendField(xml,body,section,fieldTemplate,'Hora',formatReportTime(clean(activity.time)))
    appendField(xml,body,section,fieldTemplate,'Lugar',weeklyReportLocation(activity))
    appendField(xml,body,section,fieldTemplate,'Participan',clean(activity.institution,`Delegación INTUR ${delegationName(activity.delegationId)}`))
    const participants=validAttendance(activity)

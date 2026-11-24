@@ -15,9 +15,10 @@ export interface Activity {
   projectedParticipants:number; status:ActivityStatus; men:number|null; women:number|null;
   totalParticipants:number|null; summary:string; observations:string; cancellationReason:string;
   rescheduleReason:string; originalDate:string|null; createdAt:string; updatedAt:string; isDemo?:boolean;
-  report?:ActivityReport; statusHistory:ActivityStatusHistory[];
+  report?:ActivityReport; statusHistory:ActivityStatusHistory[]; isArchived?:boolean; archivedAt?:string;
   planReviewStatus?:PlanReviewStatus; planReviewedAt?:string;
   weeklyReportStatus?:WeeklyReportStatus; weeklyReportReviewedAt?:string;
 }
 
 export type NewActivity = Pick<Activity,'delegationId'|'topic'|'activityType'|'date'|'time'|'municipality'|'location'|'responsible'|'institution'|'modality'|'trainingProvider'|'ddtFacilitator'|'projectedParticipants'|'observations'>
+

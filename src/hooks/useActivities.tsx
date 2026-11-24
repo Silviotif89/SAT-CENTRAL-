@@ -4,7 +4,7 @@ import { totalParticipants } from '../lib/activity'
 import { importFingerprint } from '../services/monthlyPlanExchange'
 import type { Activity,NewActivity,WeeklyReportStatus } from '../types'
 
-interface Store {activities:Activity[];loading:boolean;create:(input:NewActivity)=>void;importMonthlyPlan:(input:NewActivity[])=>{imported:number;skipped:number};update:(id:string,input:NewActivity)=>void;confirmPlan:(id:string,input:NewActivity)=>void;renamePlanActivity:(id:string,topic:string)=>void;deleteActivity:(id:string)=>void;setWeeklyReportStatus:(id:string,status:WeeklyReportStatus)=>void;report:(id:string,men:number,women:number,summary:string,observations:string)=>void;cancel:(id:string,reason:string)=>void;reschedule:(id:string,date:string,time:string,reason:string)=>void;resetDemo:()=>void}
+interface Store {activities:Activity[];loading:boolean;create:(input:NewActivity)=>void;importMonthlyPlan:(input:NewActivity[])=>{imported:number;skipped:number};archiveMonthlyPlan:(month:string)=>Promise<number>;update:(id:string,input:NewActivity)=>void;confirmPlan:(id:string,input:NewActivity)=>void;renamePlanActivity:(id:string,topic:string)=>void;deleteActivity:(id:string)=>void;setWeeklyReportStatus:(id:string,status:WeeklyReportStatus)=>void;report:(id:string,men:number,women:number,summary:string,observations:string)=>void;cancel:(id:string,reason:string)=>void;reschedule:(id:string,date:string,time:string,reason:string)=>void;resetDemo:()=>void}
 const Context=createContext<Store|null>(null)
 const uid=()=>crypto.randomUUID()
 export function ActivitiesProvider({children}:{children:ReactNode}){
@@ -14,6 +14,7 @@ export function ActivitiesProvider({children}:{children:ReactNode}){
  const value=useMemo<Store>(()=>({activities,loading,
   create(input){const now=new Date().toISOString();setActivities(x=>[{...input,id:uid(),status:'PROGRAMADA',men:null,women:null,totalParticipants:null,summary:'',cancellationReason:'',rescheduleReason:'',originalDate:null,createdAt:now,updatedAt:now,statusHistory:[],weeklyReportStatus:'PENDIENTE'},...x])},
   importMonthlyPlan(input){const known=new Set(activities.map(importFingerprint)),now=new Date().toISOString(),newItems:Activity[]=[];let skipped=0;input.forEach(item=>{const fingerprint=importFingerprint(item);if(known.has(fingerprint)){skipped+=1;return}known.add(fingerprint);newItems.push({...item,id:uid(),status:'PROGRAMADA',men:null,women:null,totalParticipants:null,summary:'',cancellationReason:'',rescheduleReason:'',originalDate:null,createdAt:now,updatedAt:now,statusHistory:[],weeklyReportStatus:'PENDIENTE'})});if(newItems.length)setActivities(current=>[...newItems,...current]);return {imported:newItems.length,skipped}},
+  async archiveMonthlyPlan(month){const ids=new Set(activities.filter(activity=>activity.date.startsWith(`${month}-`)&&(activity.status==='PROGRAMADA'||activity.status==='REPROGRAMADA')&&!activity.report&&!activity.isArchived).map(activity=>activity.id));if(!ids.size)return 0;const now=new Date().toISOString(),updated=activities.map(activity=>ids.has(activity.id)?{...activity,isArchived:true,archivedAt:now,updatedAt:now}:activity);await activityRepository.save(updated);setActivities(current=>current.filter(activity=>!ids.has(activity.id)));return ids.size},
   update(id,input){setActivities(x=>x.map(a=>a.id!==id?a:{...a,...input,planReviewStatus:'PENDIENTE',planReviewedAt:undefined,weeklyReportStatus:'PENDIENTE',weeklyReportReviewedAt:undefined,updatedAt:new Date().toISOString(),report:a.report?{...a.report,observations:input.observations}:a.report}))},
   confirmPlan(id,input){setActivities(x=>x.map(a=>a.id!==id?a:{...a,...input,planReviewStatus:'CONFIRMADA',planReviewedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),report:a.report?{...a.report,observations:input.observations}:a.report}))},
   renamePlanActivity(id,topic){setActivities(x=>x.map(a=>a.id!==id?a:{...a,topic:topic.trim(),updatedAt:new Date().toISOString()}))},
@@ -28,3 +29,4 @@ export function ActivitiesProvider({children}:{children:ReactNode}){
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export const useActivities=()=>{const v=useContext(Context);if(!v)throw new Error('ActivitiesProvider requerido');return v}
+
